@@ -1402,7 +1402,15 @@ Morebits.wiki.api.prototype = {
 			}
 		}, callerAjaxParameters);
 
-		return $.ajax(ajaxparams).done(
+		return $.ajax(ajaxparams).catch(
+			// only network and server errors reach here – complaints from the API itself are caught in then()
+			function(jqXHR, statusText, errorThrown) {
+				this.statusText = statusText;
+				this.errorThrown = errorThrown; // frequently undefined
+				this.errorText = statusText + ' "' + jqXHR.statusText + '" occurred while contacting the API.';
+				return this.returnError();
+			}
+		).then(
 			function(response, statusText) {
 				this.statusText = statusText;
 				this.response = this.responseXML = response;
@@ -1415,10 +1423,8 @@ Morebits.wiki.api.prototype = {
 				}
 
 				if (typeof this.errorCode === 'string') {
-
 					// the API didn't like what we told it, e.g., bad edit token or an error creating a page
-					this.returnError();
-					return;
+					return this.returnError();
 				}
 
 				// invoke success callback if one was supplied
@@ -1432,16 +1438,10 @@ Morebits.wiki.api.prototype = {
 				}
 
 				Morebits.wiki.actionCompleted();
+
+				return $.Deferred().resolveWith(this.parent, [this]);
 			}
-		).fail(
-			// only network and server errors reach here – complaints from the API itself are caught in success()
-			function(jqXHR, statusText, errorThrown) {
-				this.statusText = statusText;
-				this.errorThrown = errorThrown; // frequently undefined
-				this.errorText = statusText + ' "' + jqXHR.statusText + '" occurred while contacting the API.';
-				this.returnError();
-			}
-		);  // the return value should be ignored, unless using callerAjaxParameters with |async: false|
+		);
 	},
 
 	returnError: function() {
@@ -1459,6 +1459,7 @@ Morebits.wiki.api.prototype = {
 			this.onError.call(this.parent, this);
 		}
 		// don't complete the action so that the error remains displayed
+		return $.Deferred().rejectWith(this.parent, [this]);
 	},
 
 	getStatusElement: function() {
