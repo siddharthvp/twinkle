@@ -47,24 +47,26 @@ Twinkle.block.callback = function twinkleblockCallback() {
 	});
 	actionfield.append({
 		type: 'checkbox',
-		name: 'actiontype',
 		event: Twinkle.block.callback.change_action,
 		list: [
 			{
 				label: 'Block user',
 				value: 'block',
+				name: 'block',
 				tooltip: 'Block the relevant user with the given options. If partial block is unchecked, this will be a sitewide block.',
 				checked: true
 			},
 			{
 				label: 'Partial block',
 				value: 'partial',
+				name: 'partial',
 				tooltip: 'Enable partial blocks and partial block templates.',
 				checked: Twinkle.getPref('defaultToPartialBlocks')
 			},
 			{
 				label: 'Add block template to user talk page',
 				value: 'template',
+				name: 'addtemplate',
 				tooltip: 'If the blocking admin forgot to issue a block template, or you have just blocked the user without templating them, you can use this to issue the appropriate template. Check the partial block box for partial block templates.',
 				checked: true
 			}
@@ -92,7 +94,7 @@ Twinkle.block.callback = function twinkleblockCallback() {
 		// init the controls after user and block info have been fetched
 		var evt = document.createEvent('Event');
 		evt.initEvent('change', true, true);
-		result.actiontype[0].dispatchEvent(evt);
+		result.block.dispatchEvent(evt);
 	});
 };
 
@@ -135,27 +137,27 @@ Twinkle.block.fetchUserInfo = function twinkleblockFetchUserInfo(fn) {
 };
 
 Twinkle.block.callback.saveFieldset = function twinkleblockCallbacksaveFieldset(fieldset) {
-	Twinkle.block[$(fieldset).prop('name')] = {};
+	Twinkle.block[fieldset.name] = {};
 	$(fieldset).serializeArray().forEach(function(el) {
 		// namespaces and pages for partial blocks are overwritten
 		// here, but we're handling them elsewhere so that's fine
-		Twinkle.block[$(fieldset).prop('name')][el.name] = el.value;
+		Twinkle.block[fieldset.name][el.name] = el.value;
 	});
 };
 
 Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction(e) {
-	var field_preset, field_template_options, field_block_options, $form = $(e.target.form);
+	var field_preset, field_template_options, field_block_options, form = e.target.form;
 	// Make ifs shorter
-	var blockBox = $form.find('[name=actiontype][value=block]').is(':checked');
-	var templateBox = $form.find('[name=actiontype][value=template]').is(':checked');
-	var partial = $form.find('[name=actiontype][value=partial]');
-	var partialBox = partial.is(':checked');
+	var blockBox = form.block.checked;
+	var templateBox = form.addtemplate.checked;
+	var partial = form.partial;
+	var partialBox = partial.checked;
 	var blockGroup = partialBox ? Twinkle.block.blockGroupsPartial : Twinkle.block.blockGroups;
 
-	partial.prop('disabled', !blockBox && !templateBox);
+	partial.disabled = !blockBox && !templateBox;
 
-	Twinkle.block.callback.saveFieldset($('[name=field_block_options]'));
-	Twinkle.block.callback.saveFieldset($('[name=field_template_options]'));
+	Twinkle.block.callback.saveFieldset(form.field_block_options);
+	Twinkle.block.callback.saveFieldset(form.field_template_options);
 
 	if (blockBox) {
 		field_preset = new Morebits.quickForm.element({ type: 'field', label: 'Preset', name: 'field_preset' });
@@ -414,7 +416,7 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 
 		var $previewlink = $('<a id="twinkleblock-preivew-link">Preview</a>');
 		$previewlink.off('click').on('click', function() {
-			Twinkle.block.callback.preview($form[0]);
+			Twinkle.block.callback.preview(form);
 		});
 		$previewlink.css({cursor: 'pointer'});
 		field_template_options.append({ type: 'div', id: 'blockpreview', label: [ $previewlink[0] ] });
@@ -423,17 +425,17 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 
 	var oldfield;
 	if (field_preset) {
-		oldfield = $form.find('fieldset[name="field_preset"]')[0];
+		oldfield = form.field_preset;
 		oldfield.parentNode.replaceChild(field_preset.render(), oldfield);
 	} else {
-		$form.find('fieldset[name="field_preset"]').hide();
+		$(form.field_preset).hide();
 	}
 	if (field_block_options) {
-		oldfield = $form.find('fieldset[name="field_block_options"]')[0];
+		oldfield = form.field_block_options;
 		oldfield.parentNode.replaceChild(field_block_options.render(), oldfield);
 
 
-		$form.find('[name=pagerestrictions]').select2({
+		$(form.pagerestrictions).select2({
 			width: '100%',
 			placeholder: 'Select pages to block user from',
 			language: {
@@ -482,7 +484,7 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 		});
 
 
-		$form.find('[name=namespacerestrictions]').select2({
+		$(form.namespacerestrictions).select2({
 			width: '100%',
 			matcher: Morebits.select2.matchers.wordBeginning,
 			language: {
@@ -506,17 +508,17 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 			'.select2-selection__choice__remove { font-size: 130%; }'
 		);
 	} else {
-		$form.find('fieldset[name="field_block_options"]').hide();
+		$(form.field_block_options).hide();
 		// Clear select2 options
-		$form.find('[name=pagerestrictions]').val(null).trigger('change');
-		$form.find('[name=namespacerestrictions]').val(null).trigger('change');
+		$(form.pagerestrictions).val(null).trigger('change');
+		$(form.namespacerestrictions).val(null).trigger('change');
 	}
 	if (field_template_options) {
-		oldfield = $form.find('fieldset[name="field_template_options"]')[0];
+		oldfield = form.field_template_options;
 		oldfield.parentNode.replaceChild(field_template_options.render(), oldfield);
-		e.target.form.root.previewer = new Morebits.wiki.preview($(e.target.form.root).find('#twinkleblock-previewbox').last()[0]);
+		e.target.form.root.previewer = new Morebits.wiki.preview(document.getElementById('twinkleblock-previewbox'));
 	} else {
-		$form.find('fieldset[name="field_template_options"]').hide();
+		$(form.field_template_options).hide();
 	}
 
 	if (Twinkle.block.hasBlockLog) {
@@ -1317,7 +1319,8 @@ Twinkle.block.callback.update_form = function twinkleblockCallbackUpdateForm(e, 
 
 Twinkle.block.callback.change_template = function twinkleblockcallbackChangeTemplate(e) {
 	var form = e.target.form, value = form.template.value, settings = Twinkle.block.blockPresetsInfo[value];
-	if (!$(form).find('[name=actiontype][value=block]').is(':checked')) {
+
+	if (!form.block.checked) {
 		if (settings.indefinite || settings.nonstandard) {
 			if (Twinkle.block.prev_template_expiry === null) {
 				Twinkle.block.prev_template_expiry = form.template_expiry.value || '';
@@ -1335,8 +1338,8 @@ Twinkle.block.callback.change_template = function twinkleblockcallbackChangeTemp
 			form.expiry.value = Twinkle.block.prev_template_expiry;
 		}
 		Morebits.quickForm.setElementVisibility(form.notalk.parentNode, !settings.nonstandard);
-		Morebits.quickForm.setElementVisibility(form.noemail_template.parentNode, $(form).find('[name=actiontype][value=partial]').is(':checked') && !$(form).find('[name=actiontype][value=block]').is(':checked'));
-		Morebits.quickForm.setElementVisibility(form.nocreate_template.parentNode, $(form).find('[name=actiontype][value=partial]').is(':checked') && !$(form).find('[name=actiontype][value=block]').is(':checked'));
+		Morebits.quickForm.setElementVisibility(form.noemail_template.parentNode, form.partial.checked && !form.block.checked);
+		Morebits.quickForm.setElementVisibility(form.nocreate_template.parentNode, form.partial.checked && !form.block.checked);
 	} else {
 		Morebits.quickForm.setElementVisibility(
 			form.blank_duration.parentNode,
@@ -1347,7 +1350,7 @@ Twinkle.block.callback.change_template = function twinkleblockcallbackChangeTemp
 	Morebits.quickForm.setElementVisibility(form.block_reason.parentNode, !!settings.reasonParam);
 
 	// Partial block
-	Morebits.quickForm.setElementVisibility(form.area.parentNode, $(form).find('[name=actiontype][value=partial]').is(':checked') && !$(form).find('[name=actiontype][value=block]').is(':checked'));
+	Morebits.quickForm.setElementVisibility(form.area.parentNode, form.partial.checked && !form.block.checked);
 
 	form.root.previewer.closePreview();
 };
@@ -1363,7 +1366,7 @@ Twinkle.block.callback.preview = function twinkleblockcallbackPreview(form) {
 		indefinite: (/indef|infinit|never|\*|max/).test(form.template_expiry ? form.template_expiry.value : form.expiry.value),
 		reason: form.block_reason.value,
 		template: form.template.value,
-		partial: $(form).find('[name=actiontype][value=partial]').is(':checked'),
+		partial: form.partial.checked,
 		pagerestrictions: $(form.pagerestrictions).val() || [],
 		namespacerestrictions: $(form.namespacerestrictions).val() || [],
 		noemail: form.noemail.checked || (form.noemail_template ? form.noemail_template.checked : false),
@@ -1377,14 +1380,14 @@ Twinkle.block.callback.preview = function twinkleblockcallbackPreview(form) {
 };
 
 Twinkle.block.callback.evaluate = function twinkleblockCallbackEvaluate(e) {
-	var $form = $(e.target),
-		toBlock = $form.find('[name=actiontype][value=block]').is(':checked'),
-		toWarn = $form.find('[name=actiontype][value=template]').is(':checked'),
-		toPartial = $form.find('[name=actiontype][value=partial]').is(':checked'),
+	var form = e.target,
+		toBlock = form.block.checked,
+		toWarn = form.addtemplate.checked,
+		toPartial = form.partial.checked,
 		blockoptions = {}, templateoptions = {};
 
-	Twinkle.block.callback.saveFieldset($form.find('[name=field_block_options]'));
-	Twinkle.block.callback.saveFieldset($form.find('[name=field_template_options]'));
+	Twinkle.block.callback.saveFieldset(form.field_block_options);
+	Twinkle.block.callback.saveFieldset(form.field_template_options);
 
 	blockoptions = Twinkle.block.field_block_options;
 
@@ -1397,8 +1400,8 @@ Twinkle.block.callback.evaluate = function twinkleblockCallbackEvaluate(e) {
 	if (toPartial) {
 		blockoptions.partial = templateoptions.partial = true;
 	}
-	templateoptions.pagerestrictions = $form.find('[name=pagerestrictions]').val() || [];
-	templateoptions.namespacerestrictions = $form.find('[name=namespacerestrictions]').val() || [];
+	templateoptions.pagerestrictions = $(form.pagerestrictions).val() || [];
+	templateoptions.namespacerestrictions = $(form.namespacerestrictions).val() || [];
 	// Format for API here rather than in saveFieldset
 	blockoptions.pagerestrictions = templateoptions.pagerestrictions.join('|');
 	blockoptions.namespacerestrictions = templateoptions.namespacerestrictions.join('|');
