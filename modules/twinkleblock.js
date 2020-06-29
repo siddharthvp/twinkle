@@ -293,12 +293,12 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 		});
 		field_block_options.append({
 			type: 'checkbox',
-			name: 'filter_see_also',
 			event: Twinkle.block.callback.toggle_see_alsos,
 			style: 'display:inline-block; margin-right:5px',
 			list: [
 				{
 					label: 'Filter log',
+					name: 'filter_see_also',
 					checked: false,
 					value: 'filter log'
 				}
@@ -306,12 +306,12 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 		});
 		field_block_options.append({
 			type: 'checkbox',
-			name: 'deleted_see_also',
 			event: Twinkle.block.callback.toggle_see_alsos,
 			style: 'display:inline-block',
 			list: [
 				{
 					label: 'Deleted contribs',
+					name: 'deleted_see_also',
 					checked: false,
 					value: 'deleted contribs'
 				}
@@ -374,10 +374,10 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 		if (form.block.checked) {
 			field_template_options.append({
 				type: 'checkbox',
-				name: 'blank_duration',
 				list: [
 					{
 						label: 'Do not include expiry in template',
+						name: 'blank_duration',
 						checked: Twinkle.block.field_template_options.blank_duration,
 						tooltip: 'Instead of including the duration, make the block template read "You have been blocked temporarily..."'
 					}
