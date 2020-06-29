@@ -224,55 +224,44 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 			});
 		}
 
-		var blockoptions = [
-			{
-				checked: Twinkle.block.field_block_options.nocreate,
-				label: 'Block account creation',
-				name: 'nocreate',
-				value: '1'
-			},
-			{
-				checked: Twinkle.block.field_block_options.noemail,
-				label: 'Block user from sending email',
-				name: 'noemail',
-				value: '1'
-			},
-			{
-				checked: Twinkle.block.field_block_options.disabletalk,
-				label: 'Prevent this user from editing their own talk page while blocked',
-				name: 'disabletalk',
-				value: '1',
-				tooltip: form.partial.checked ? 'If issuing a partial block, this MUST remain unchecked unless you are also preventing them from editing User talk space' : ''
-			}
-		];
-
-		if (Twinkle.block.isRegistered) {
-			blockoptions.push({
+		field_block_options.append({
+			type: 'checkbox',
+			name: 'blockoptions',
+			list: [
+				{
+					checked: Twinkle.block.field_block_options.nocreate,
+					label: 'Block account creation',
+					name: 'nocreate',
+					value: '1'
+				},
+				{
+					checked: Twinkle.block.field_block_options.noemail,
+					label: 'Block user from sending email',
+					name: 'noemail',
+					value: '1'
+				},
+				{
+					checked: Twinkle.block.field_block_options.disabletalk,
+					label: 'Prevent this user from editing their own talk page while blocked',
+					name: 'disabletalk',
+					value: '1'
+				}
+			].concat(Twinkle.block.isRegistered ? {
 				checked: Twinkle.block.field_block_options.autoblock,
 				label: 'Autoblock any IP addresses used (hardblock)',
 				name: 'autoblock',
 				value: '1'
-			});
-		} else {
-			blockoptions.push({
+			} : {
 				checked: Twinkle.block.field_block_options.hardblock,
 				label: 'Block logged-in users from using this IP address (hardblock)',
 				name: 'hardblock',
 				value: '1'
-			});
-		}
-
-		blockoptions.push({
-			checked: Twinkle.block.field_block_options.watchuser,
-			label: 'Watch user and user talk pages',
-			name: 'watchuser',
-			value: '1'
-		});
-
-		field_block_options.append({
-			type: 'checkbox',
-			name: 'blockoptions',
-			list: blockoptions
+			}).concat({
+				checked: Twinkle.block.field_block_options.watchuser,
+				label: 'Watch user and user talk pages',
+				name: 'watchuser',
+				value: '1'
+			})
 		});
 		field_block_options.append({
 			type: 'textarea',
