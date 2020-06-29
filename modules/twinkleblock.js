@@ -147,19 +147,14 @@ Twinkle.block.callback.saveFieldset = function twinkleblockCallbacksaveFieldset(
 
 Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction(e) {
 	var field_preset, field_template_options, field_block_options, form = e.target.form;
-	// Make ifs shorter
-	var blockBox = form.block.checked;
-	var templateBox = form.addtemplate.checked;
-	var partial = form.partial;
-	var partialBox = partial.checked;
-	var blockGroup = partialBox ? Twinkle.block.blockGroupsPartial : Twinkle.block.blockGroups;
+	var blockGroup = form.partial.checked ? Twinkle.block.blockGroupsPartial : Twinkle.block.blockGroups;
 
-	partial.disabled = !blockBox && !templateBox;
+	form.partial.disabled = !form.block.checked && !form.addtemplate.checked;
 
 	Twinkle.block.callback.saveFieldset(form.field_block_options);
 	Twinkle.block.callback.saveFieldset(form.field_template_options);
 
-	if (blockBox) {
+	if (form.block.checked) {
 		field_preset = new Morebits.quickForm.element({ type: 'field', label: 'Preset', name: 'field_preset' });
 		field_preset.append({
 			type: 'select',
@@ -206,7 +201,7 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 			value: Twinkle.block.field_block_options.expiry || Twinkle.block.field_template_options.template_expiry
 		});
 
-		if (partialBox) { // Partial block
+		if (form.partial.checked) { // Partial block
 			field_block_options.append({
 				type: 'select',
 				multiple: true,
@@ -249,7 +244,7 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 				label: 'Prevent this user from editing their own talk page while blocked',
 				name: 'disabletalk',
 				value: '1',
-				tooltip: partialBox ? 'If issuing a partial block, this MUST remain unchecked unless you are also preventing them from editing User talk space' : ''
+				tooltip: form.partial.checked ? 'If issuing a partial block, this MUST remain unchecked unless you are also preventing them from editing User talk space' : ''
 			}
 		];
 
@@ -328,7 +323,7 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 		}
 	}
 
-	if (templateBox) {
+	if (form.addtemplate.checked) {
 		field_template_options = new Morebits.quickForm.element({ type: 'field', label: 'Template options', name: 'field_template_options' });
 		field_template_options.append({
 			type: 'select',
@@ -357,7 +352,7 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 			tooltip: 'Optional explanation of the pages or namespaces the user was blocked from editing.'
 		});
 
-		if (!blockBox) {
+		if (!form.block.checked) {
 			field_template_options.append({
 				type: 'input',
 				name: 'template_expiry',
@@ -376,7 +371,7 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 			value: Twinkle.block.field_template_options.block_reason
 		});
 
-		if (blockBox) {
+		if (form.block.checked) {
 			field_template_options.append({
 				type: 'checkbox',
 				name: 'blank_duration',
@@ -539,17 +534,17 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 			statusStr += ' (expires ' + new Morebits.date(Twinkle.block.currentBlockInfo.expiry).calendar('utc') + ')';
 		}
 		var infoStr = 'Submit query to change the block';
-		if (Twinkle.block.currentBlockInfo.partial === undefined && partialBox) {
+		if (Twinkle.block.currentBlockInfo.partial === undefined && form.partial.checked) {
 			infoStr += ', converting to a partial block';
-		} else if (Twinkle.block.currentBlockInfo.partial === '' && !partialBox) {
+		} else if (Twinkle.block.currentBlockInfo.partial === '' && !form.partial.checked) {
 			infoStr += ', converting to a sitewide block';
 		}
 		Morebits.status.warn(statusStr, infoStr);
 		Twinkle.block.callback.update_form(e, Twinkle.block.currentBlockInfo);
 	}
-	if (templateBox) {
+	if (form.addtemplate.checked) {
 		// make sure all the fields are correct based on defaults
-		if (blockBox) {
+		if (form.block.checked) {
 			Twinkle.block.callback.change_preset(e);
 		} else {
 			Twinkle.block.callback.change_template(e);
