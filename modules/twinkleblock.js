@@ -84,7 +84,7 @@ Twinkle.block.callback = function twinkleblockCallback() {
 	Window.display();
 	result.root = result;
 
-	Twinkle.block.fetchUserInfo(function() {
+	Twinkle.block.fetchUserInfo().then(function() {
 		// clean up preset data (defaults, etc.), done exactly once, must be before Twinkle.block.callback.change_action is called
 		Twinkle.block.transformBlockPresets();
 		if (Twinkle.block.currentBlockInfo) {
@@ -98,8 +98,9 @@ Twinkle.block.callback = function twinkleblockCallback() {
 	});
 };
 
-Twinkle.block.fetchUserInfo = function twinkleblockFetchUserInfo(fn) {
-	api.get({
+Twinkle.block.fetchUserInfo = function twinkleblockFetchUserInfo() {
+
+	return api.get({
 		format: 'json',
 		action: 'query',
 		list: 'blocks|users|logevents',
@@ -108,32 +109,29 @@ Twinkle.block.fetchUserInfo = function twinkleblockFetchUserInfo(fn) {
 		bkusers: mw.config.get('wgRelevantUserName'),
 		ususers: mw.config.get('wgRelevantUserName'),
 		letitle: 'User:' + mw.config.get('wgRelevantUserName')
-	})
-		.then(function(data) {
-			var blockinfo = data.query.blocks[0],
-				userinfo = data.query.users[0];
+	}).then(function(data) {
+		var blockinfo = data.query.blocks[0],
+			userinfo = data.query.users[0];
 
-			Twinkle.block.isRegistered = !!userinfo.userid;
-			relevantUserName = Twinkle.block.isRegistered ? 'User:' + mw.config.get('wgRelevantUserName') : mw.config.get('wgRelevantUserName');
+		Twinkle.block.isRegistered = !!userinfo.userid;
+		relevantUserName = Twinkle.block.isRegistered ? 'User:' + mw.config.get('wgRelevantUserName') : mw.config.get('wgRelevantUserName');
 
-			if (blockinfo) {
-			// handle frustrating system of inverted boolean values
-				blockinfo.disabletalk = blockinfo.allowusertalk === undefined;
-				blockinfo.hardblock = blockinfo.anononly === undefined;
-				Twinkle.block.currentBlockInfo = blockinfo;
-			}
+		if (blockinfo) {
+		// handle frustrating system of inverted boolean values
+			blockinfo.disabletalk = blockinfo.allowusertalk === undefined;
+			blockinfo.hardblock = blockinfo.anononly === undefined;
+			Twinkle.block.currentBlockInfo = blockinfo;
+		}
 
-			Twinkle.block.hasBlockLog = !!data.query.logevents.length;
-			// Used later to check if block status changed while filling out the form
-			Twinkle.block.blockLogId = Twinkle.block.hasBlockLog ? data.query.logevents[0].logid : false;
+		Twinkle.block.hasBlockLog = !!data.query.logevents.length;
+		// Used later to check if block status changed while filling out the form
+		Twinkle.block.blockLogId = Twinkle.block.hasBlockLog ? data.query.logevents[0].logid : false;
 
-			if (typeof fn === 'function') {
-				return fn();
-			}
-		}, function(msg) {
-			Morebits.status.init($('div[name="currentblock"] span').last()[0]);
-			Morebits.status.warn('Error fetching user info', msg);
-		});
+	}, function(msg) {
+		Morebits.status.init($('div[name="currentblock"] span').last()[0]);
+		Morebits.status.warn('Error fetching user info', msg);
+		return $.Deferred().reject();
+	});
 };
 
 Twinkle.block.callback.saveFieldset = function twinkleblockCallbacksaveFieldset(fieldset) {
