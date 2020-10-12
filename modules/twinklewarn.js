@@ -1341,21 +1341,16 @@ SelectWithOptgroupsWidget.prototype.setOptions = function (options) {
 };
 
 SelectWithOptgroupsWidget.prototype.getLookupRequest = function () {
-	var value = this.getValue(),
-		deferred = $.Deferred();
-
-	// Resolve with just the options
-	deferred.resolve({
-		regex: new RegExp(mw.util.escapeRegExp(value), 'i'),
-		options: this.options
-	});
+	// Resolve with just the regex
+	var deferred = $.Deferred();
+	deferred.resolve(new RegExp(mw.util.escapeRegExp(this.getValue()), 'i'));
 	return deferred.promise({ abort: function () {} });
 };
 SelectWithOptgroupsWidget.prototype.getLookupCacheDataFromResponse = function (response) {
 	return response || [];
 };
 
-SelectWithOptgroupsWidget.prototype.getLookupMenuOptionsFromData = function (data) {
+SelectWithOptgroupsWidget.prototype.getLookupMenuOptionsFromData = function (regex) {
 	var items = [];
 	function highlightSearchMatch (match) {
 		var idx = match.input.toUpperCase().indexOf(match[0].toUpperCase());
@@ -1368,7 +1363,7 @@ SelectWithOptgroupsWidget.prototype.getLookupMenuOptionsFromData = function (dat
 	this.options.forEach(function(group) {
 		var match;
 		// eslint-disable-next-line no-cond-assign
-		if (match = group.label.match(data.regex)) {
+		if (match = group.label.match(regex)) {
 			items.push(new OO.ui.MenuOptionWidget({ label: highlightSearchMatch(match), disabled: true }));
 			items = items.concat(group.options.map(function(opt) {
 				return new OO.ui.MenuOptionWidget({ data: opt.data, label: opt.label });
@@ -1376,7 +1371,7 @@ SelectWithOptgroupsWidget.prototype.getLookupMenuOptionsFromData = function (dat
 		} else {
 			var matches = group.options.map(function(opt) {
 				return {
-					match: opt.label.match(data.regex),
+					match: opt.label.match(regex),
 					data: opt.data
 				};
 			}).filter(function(e) {
