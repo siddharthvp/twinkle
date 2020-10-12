@@ -522,6 +522,30 @@ Twinkle.makeFindSourcesDiv = function makeSourcesDiv() {
 		)[0];
 };
 
+// Repeated calls to this function won't result in the same modules being reloaded.
+Twinkle.loadOOUI = function (additionalModules) {
+	return mw.loader.using(['oojs-ui-core', 'oojs-ui-widgets'].concat(additionalModules || []));
+};
+
+Twinkle.getOOUIOverlay = function () {
+	var $overlay = $('#twinkle-ooui-overlay');
+	// Return existing overlay if already present on the DOM
+	if ($overlay.length) {
+		return $overlay;
+	}
+	return $('<div>').attr('id', 'twinkle-ooui-overlay').css({
+		'position': 'absolute',
+		'z-index': 1500
+	}).appendTo('body');
+};
+
+Twinkle.syncMultiselectWithOOUITags = function syncMultiselectWithOOUITags($select, oouiTags) {
+	$select.empty().append(oouiTags.map(function(item) {
+		return $('<option>').val(item.data).prop('selected', true);
+	}));
+};
+
+
 }(window, document, jQuery)); // End wrap with anonymous function
 
 // </nowiki>
