@@ -1325,6 +1325,7 @@ var SelectWithOptgroupsWidget = function(config) {
 		allowSuggestionsWhenEmpty: true
 	});
 	this.setOptions(config.options || []);
+	this.showFullGroupOnGroupLabelMatch = config.showFullGroupOnGroupLabelMatch !== false;
 };
 OO.inheritClass(SelectWithOptgroupsWidget, OO.ui.TextInputWidget);
 OO.mixinClass(SelectWithOptgroupsWidget, OO.ui.mixin.LookupElement);
@@ -1360,31 +1361,39 @@ SelectWithOptgroupsWidget.prototype.getLookupMenuOptionsFromData = function (reg
 			match.input.slice(idx + match[0].length)
 		);
 	}
+	function getMatchesInGroup (groupOptions) {
+		return groupOptions.map(function(opt) {
+			return {
+				match: opt.label.match(regex),
+				data: opt.data
+			};
+		}).filter(function(e) {
+			return e.match;
+		});
+	}
+	function addMatchesToItems(matches) {
+		items = items.concat(matches.map(function(e) {
+			return new OO.ui.MenuOptionWidget({ data: e.data, label: highlightSearchMatch(e.match) });
+		}));
+	}
 	this.options.forEach(function(group) {
-		var match;
-		// eslint-disable-next-line no-cond-assign
-		if (match = group.label.match(regex)) {
+		var match, matches;
+		if (match = group.label.match(regex)) { // eslint-disable-line no-cond-assign
 			items.push(new OO.ui.MenuOptionWidget({ label: highlightSearchMatch(match), disabled: true }));
-			items = items.concat(group.options.map(function(opt) {
-				return new OO.ui.MenuOptionWidget({ data: opt.data, label: opt.label });
-			}));
+			if (this.showFullGroupOnGroupLabelMatch) {
+				items = items.concat(group.options.map(function(opt) {
+					return new OO.ui.MenuOptionWidget({ data: opt.data, label: opt.label });
+				}));
+			} else {
+				// show matching options in the group only
+				matches = getMatchesInGroup(group.options);
+				addMatchesToItems(matches);
+			}
 		} else {
-			var matches = group.options.map(function(opt) {
-				return {
-					match: opt.label.match(regex),
-					data: opt.data
-				};
-			}).filter(function(e) {
-				return e.match;
-			});
+			matches = getMatchesInGroup(group.options);
 			if (matches.length) {
-				items.push(new OO.ui.MenuOptionWidget({
-					label: group.label,
-					disabled: true
-				}));
-				items = items.concat(matches.map(function(e) {
-					return new OO.ui.MenuOptionWidget({ data: e.data, label: highlightSearchMatch(e.match) });
-				}));
+				items.push(new OO.ui.MenuOptionWidget({ label: group.label, disabled: true }));
+				addMatchesToItems(matches);
 			}
 		}
 	});
