@@ -403,6 +403,7 @@ Twinkle.tag.updateSortOrder = function(e) {
 				checkbox.subgroup = [
 					{
 						name: 'histmergeOriginalPage',
+						className: 'titleInput',
 						type: 'input',
 						label: 'Other article: ',
 						tooltip: 'Name of the page that should be merged into this one (required).'
@@ -437,6 +438,7 @@ Twinkle.tag.updateSortOrder = function(e) {
 				checkbox.subgroup = [
 					{
 						name: 'mergeTarget',
+						className: 'titleInput',
 						type: 'input',
 						label: 'Other article(s): ',
 						tooltip: 'If specifying multiple articles, separate them with pipe characters: Article one|Article two'
@@ -628,6 +630,10 @@ Twinkle.tag.updateSortOrder = function(e) {
 	var $workarea = $(form).find('#tagWorkArea');
 	var rendered = container.render();
 	$workarea.empty().append(rendered);
+
+	$workarea.find('[name=tags]').on('change', function() {
+		Twinkle.OOUIify($workarea);
+	});
 
 	// for quick filter:
 	$allCheckboxDivs = $workarea.find('[name=tags], [name=existingTags]').parent();
