@@ -1324,183 +1324,34 @@ Twinkle.warn.callback.postCategoryCleanup = function twinklewarnCallbackPostCate
 	// Trigger custom label/change on main category change
 	Twinkle.warn.callback.change_subcategory(e);
 
-	// Use OOUI make the select menu searchable
+	// Use select2 to make the select menu searchable
 	if (!Twinkle.getPref('oldSelect')) {
-		Twinkle.loadOOUI().then(function() {
-			$('select[name=sub_group]').after(new SelectWithOptgroupsWidget({
-				placeholder: 'Start typing to search for tags ...',
-				options: [
-					{
-					  "label": "Common warnings",
-					  "options": [
-						{
-						  "data": "uw-vandalism1",
-						  "label": "{{uw-vandalism1}}: Vandalism"
-						},
-						{
-						  "data": "uw-disruptive1",
-						  "label": "{{uw-disruptive1}}: Disruptive editing"
-						},
-						{
-						  "data": "uw-test1",
-						  "label": "{{uw-test1}}: Editing tests"
-						},
-						{
-						  "data": "uw-delete1",
-						  "label": "{{uw-delete1}}: Removal of content, blanking"
-						}
-					  ]
-					},
-					{
-					  "label": "Behavior in articles",
-					  "options": [
-						{
-						  "data": "uw-biog1",
-						  "label": "{{uw-biog1}}: Adding unreferenced controversial information about living persons"
-						},
-						{
-						  "data": "uw-defamatory1",
-						  "label": "{{uw-defamatory1}}: Addition of defamatory content"
-						},
-						{
-						  "data": "uw-error1",
-						  "label": "{{uw-error1}}: Introducing deliberate factual errors"
-						},
-						{
-						  "data": "uw-genre1",
-						  "label": "{{uw-genre1}}: Frequent or mass changes to genres without consensus or references"
-						},
-						{
-						  "data": "uw-image1",
-						  "label": "{{uw-image1}}: Image-related vandalism in articles"
-						},
-						{
-						  "data": "uw-joke1",
-						  "label": "{{uw-joke1}}: Using improper humor in articles"
-						},
-						{
-						  "data": "uw-nor1",
-						  "label": "{{uw-nor1}}: Adding original research, including unpublished syntheses of sources"
-						},
-						{
-						  "data": "uw-notcensored1",
-						  "label": "{{uw-notcensored1}}: Censorship of material"
-						},
-						{
-						  "data": "uw-own1",
-						  "label": "{{uw-own1}}: Ownership of articles"
-						},
-						{
-						  "data": "uw-tdel1",
-						  "label": "{{uw-tdel1}}: Removal of maintenance templates"
-						},
-						{
-						  "data": "uw-unsourced1",
-						  "label": "{{uw-unsourced1}}: Addition of unsourced or improperly cited material"
-						}
-					  ]
-					},
-					{
-					  "label": "Promotions and spam",
-					  "options": [
-						{
-						  "data": "uw-advert1",
-						  "label": "{{uw-advert1}}: Using Wikipedia for advertising or promotion"
-						},
-						{
-						  "data": "uw-npov1",
-						  "label": "{{uw-npov1}}: Not adhering to neutral point of view"
-						},
-						{
-						  "data": "uw-paid1",
-						  "label": "{{uw-paid1}}: Paid editing without disclosure under the Wikimedia Terms of Use"
-						},
-						{
-						  "data": "uw-spam1",
-						  "label": "{{uw-spam1}}: Adding inappropriate external links"
-						}
-					  ]
-					},
-					{
-					  "label": "Behavior towards other editors",
-					  "options": [
-						{
-						  "data": "uw-agf1",
-						  "label": "{{uw-agf1}}: Not assuming good faith"
-						},
-						{
-						  "data": "uw-harass1",
-						  "label": "{{uw-harass1}}: Harassment of other users"
-						},
-						{
-						  "data": "uw-npa1",
-						  "label": "{{uw-npa1}}: Personal attack directed at a specific editor"
-						},
-						{
-						  "data": "uw-tempabuse1",
-						  "label": "{{uw-tempabuse1}}: Improper use of warning or blocking template"
-						}
-					  ]
-					},
-					{
-					  "label": "Removal of deletion tags",
-					  "options": [
-						{
-						  "data": "uw-afd1",
-						  "label": "{{uw-afd1}}: Removing {{afd}} templates"
-						},
-						{
-						  "data": "uw-blpprod1",
-						  "label": "{{uw-blpprod1}}: Removing {{blp prod}} templates"
-						},
-						{
-						  "data": "uw-idt1",
-						  "label": "{{uw-idt1}}: Removing file deletion tags"
-						},
-						{
-						  "data": "uw-speedy1",
-						  "label": "{{uw-speedy1}}: Removing speedy deletion tags"
-						}
-					  ]
-					},
-					{
-					  "label": "Other",
-					  "options": [
-						{
-						  "data": "uw-attempt1",
-						  "label": "{{uw-attempt1}}: Triggering the edit filter"
-						},
-						{
-						  "data": "uw-chat1",
-						  "label": "{{uw-chat1}}: Using talk page as forum"
-						},
-						{
-						  "data": "uw-create1",
-						  "label": "{{uw-create1}}: Creating inappropriate pages"
-						},
-						{
-						  "data": "uw-mos1",
-						  "label": "{{uw-mos1}}: Manual of style"
-						},
-						{
-						  "data": "uw-move1",
-						  "label": "{{uw-move1}}: Page moves against naming conventions or consensus"
-						},
-						{
-						  "data": "uw-tpv1",
-						  "label": "{{uw-tpv1}}: Refactoring others' talk page comments"
-						},
-						{
-						  "data": "uw-upload1",
-						  "label": "{{uw-upload1}}: Uploading unencyclopedic images"
-						}
-					  ]
-					}
-				]
-			}).$element);
-		});
-	}
+		$('select[name=sub_group]')
+			.select2({
+				width: '100%',
+				matcher: Morebits.select2.matchers.optgroupFull,
+				templateResult: Morebits.select2.highlightSearchMatches,
+				language: {
+					searching: Morebits.select2.queryInterceptor
+				}
+			})
+			.change(Twinkle.warn.callback.change_subcategory);
 
+		$('.select2-selection').keydown(Morebits.select2.autoStart).focus();
+
+		mw.util.addCSS(
+			// Increase height
+			'.select2-container .select2-dropdown .select2-results > .select2-results__options { max-height: 350px; }' +
+
+			// Reduce padding
+			'.select2-results .select2-results__option { padding-top: 1px; padding-bottom: 1px; }' +
+			'.select2-results .select2-results__group { padding-top: 1px; padding-bottom: 1px; } ' +
+
+			// Adjust font size
+			'.select2-container .select2-dropdown .select2-results { font-size: 13px; }' +
+			'.select2-container .selection .select2-selection__rendered { font-size: 13px; }'
+		);
+	}
 };
 
 Twinkle.warn.callback.change_subcategory = function twinklewarnCallbackChangeSubcategory(e) {

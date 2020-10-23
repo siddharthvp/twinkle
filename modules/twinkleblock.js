@@ -462,25 +462,77 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 		oldfield = $form.find('fieldset[name="field_block_options"]')[0];
 		oldfield.parentNode.replaceChild(field_block_options.render(), oldfield);
 
-		Twinkle.loadOOUI(['mediawiki.widgets.TitlesMultiselectWidget', 'mediawiki.widgets.NamespacesMultiselectWidget']).then(function() {
 
-			var titleSelector = new mw.widgets.TitlesMultiselectWidget({
-				tagLimit: 10, // Software limitation [[phab:T202776]]
-				placeholder: 'Start typing to search for pages ...',
-				$overlay: Twinkle.getOOUIOverlay()
-			}).on('change', function(selectedTags) {
-				Twinkle.syncMultiselectWithOOUITags($form.find('[name=pagerestrictions]'), selectedTags || []);
-			});
-			$form.find('[name=pagerestrictions]').hide().after(titleSelector.$element);
-
-			var nsSelector = new mw.widgets.NamespacesMultiselectWidget({
-				$overlay: Twinkle.getOOUIOverlay()
-			}).on('change', function(selectedTags) {
-				Twinkle.syncMultiselectWithOOUITags($form.find('[name=namespacerestrictions]'), selectedTags || []);
-			});
-			$form.find('[name=namespacerestrictions]').hide().after(nsSelector.$element);
+		$form.find('[name=pagerestrictions]').select2({
+			width: '100%',
+			placeholder: 'Select pages to block user from',
+			language: {
+				errorLoading: function() {
+					return 'Incomplete or invalid search term';
+				}
+			},
+			maximumSelectionLength: 10, // Software limitation [[phab:T202776]]
+			minimumInputLength: 1, // prevent ajax call when empty
+			ajax: {
+				url: mw.util.wikiScript('api'),
+				dataType: 'json',
+				delay: 100,
+				data: function(params) {
+					var title = mw.Title.newFromText(params.term);
+					if (!title) {
+						return;
+					}
+					return {
+						'action': 'query',
+						'format': 'json',
+						'list': 'allpages',
+						'apfrom': title.title,
+						'apnamespace': title.namespace,
+						'aplimit': '10'
+					};
+				},
+				processResults: function(data) {
+					return {
+						results: data.query.allpages.map(function(page) {
+							var title = mw.Title.newFromText(page.title, page.ns).toText();
+							return {
+								id: title,
+								text: title
+							};
+						})
+					};
+				}
+			},
+			templateSelection: function(choice) {
+				return $('<a>').text(choice.text).attr({
+					href: mw.util.getUrl(choice.text),
+					target: '_blank'
+				});
+			}
 		});
 
+
+		$form.find('[name=namespacerestrictions]').select2({
+			width: '100%',
+			matcher: Morebits.select2.matchers.wordBeginning,
+			language: {
+				searching: Morebits.select2.queryInterceptor
+			},
+			templateResult: Morebits.select2.highlightSearchMatches,
+			placeholder: 'Select namespaces to block user from'
+		});
+
+		mw.util.addCSS(
+			// Reduce padding
+			'.select2-results .select2-results__option { padding-top: 1px; padding-bottom: 1px; }' +
+			// Adjust font size
+			'.select2-container .select2-dropdown .select2-results { font-size: 13px; }' +
+			'.select2-container .selection .select2-selection__rendered { font-size: 13px; }' +
+			// Remove black border
+			'.select2-container--default.select2-container--focus .select2-selection--multiple { border: 1px solid #aaa; }' +
+			// Make the tiny cross larger
+			'.select2-selection__choice__remove { font-size: 130%; }'
+		);
 	} else {
 		$form.find('fieldset[name="field_block_options"]').hide();
 		// Clear select2 options
