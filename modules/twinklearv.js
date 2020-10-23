@@ -239,6 +239,7 @@ Twinkle.arv.callback.changeCategory = function (e) {
 				{
 					type: 'input',
 					name: 'sockmaster',
+					className: 'userInput',
 					label: 'Sockpuppeteer',
 					tooltip: 'The username of the sockpuppeteer (sockmaster) without the User:-prefix'
 				}
@@ -278,10 +279,11 @@ Twinkle.arv.callback.changeCategory = function (e) {
 					type: 'dyninput',
 					name: 'sockpuppet',
 					label: 'Sockpuppets',
+					className: 'userInput',
 					sublabel: 'Sock: ',
 					tooltip: 'The username of the sockpuppet without the User:-prefix',
 					min: 2
-				});
+				}); // XXX: OOUI conversion works only for the first 2 sock fields which are visible by default
 			work_area.append({
 				type: 'textarea',
 				label: 'Evidence:',
@@ -312,6 +314,7 @@ Twinkle.arv.callback.changeCategory = function (e) {
 			work_area.append({
 				type: 'input',
 				name: 'page',
+				className: 'titleInput',
 				label: 'Page',
 				tooltip: 'The page being reported'
 			});
@@ -440,6 +443,7 @@ Twinkle.arv.callback.changeCategory = function (e) {
 			old_area.parentNode.replaceChild(work_area, old_area);
 			break;
 	}
+	Twinkle.OOUIify($('[name=work_area]'));
 };
 
 Twinkle.arv.callback.evaluate = function(e) {
