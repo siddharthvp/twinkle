@@ -690,6 +690,11 @@ Morebits.quickForm.element.prototype.compute = function QuickFormElementCompute(
 	if (data.style) {
 		childContainder.setAttribute('style', data.style);
 	}
+	if (data.data) {
+		$.each(data.data, function(key, val) {
+			childContainder.dataset[key] = val;
+		});
+	}
 	if (data.className) {
 		childContainder.className = childContainder.className ?
 			childContainder.className + ' ' + data.className :
