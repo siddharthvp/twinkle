@@ -6,6 +6,16 @@
 	width: 3.24em;
 }
 
+#twinkle-ooui-overlay {
+	position: absolute;
+	z-index: 1500;
+}
+
+/* Distinguish disabled OOUI input from normal ones */
+.quickform .oo-ui-inputWidget-input:disabled {
+	opacity: 0.5;
+}
+
 /* The additional box on user skin.js and twinklepreferences.js pages */
 #twinkle-config-headerbox {
 	border: 1px #f60 solid;

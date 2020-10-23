@@ -522,6 +522,73 @@ Twinkle.makeFindSourcesDiv = function makeSourcesDiv() {
 		)[0];
 };
 
+/**
+ * Converts
+ * @param {HTMLElement|jQuery} rendered - An element in which to hunt for
+ * inputs to be OOUIified.
+ * @constructor
+ */
+Twinkle.OOUIify = function(rendered) {
+	Twinkle.OOUIify.rules.forEach(function(rule) {
+		$(rendered).find(rule.selector).each(function() {
+			mw.loader.using(rule.dependencies, function() {
+				var widget = rule.getWidget(this);
+				var $div = $(Morebits.quickForm.getElementContainer(this));
+				var $label = $div.find('label');
+				var $tooltip = $div.find('.morebits-tooltipButton');
+
+				// OOUI widgets are always <div>, to get a div to display
+				// in the same line as the label, we have to use a table
+				$div.replaceWith(
+					$('<table>').append(
+						$('<tbody>').append(
+							$('<tr>').append(
+								$('<td>').append($label, $tooltip),
+								$('<td>').append(widget.$element)
+							)
+						)
+					)
+				);
+			}.bind(this));
+		});
+	});
+};
+// See [[mw:OOUI/Concepts#Overlay]]
+Twinkle.OOUIify.getOverlay = function () {
+	var $overlay = $('#twinkle-ooui-overlay');
+	if ($overlay.length) {
+		return $overlay;
+	}
+	return $('<div>').attr('id', 'twinkle-ooui-overlay').appendTo('body');
+};
+Twinkle.OOUIify.getConfig = function(input, customParams) {
+	return $.extend({
+		name: $(input).attr('name'),
+		disabled: $(input).attr('disabled'),
+		value: $(input).val(),
+		$overlay: Twinkle.OOUIify.getOverlay(),
+		namespace: input.dataset.namespace ? Number(input.dataset.namespace) : undefined,
+		relative: false // always show namespace name in dropdown options
+	}, customParams);
+};
+Twinkle.OOUIify.rules = [
+	{
+		dependencies: ['mediawiki.widgets'],
+		selector: 'input.titleInput',
+		getWidget: function(input) {
+			return new mw.widgets.TitleInputWidget(Twinkle.OOUIify.getConfig(input));
+		}
+	},
+	{
+		dependencies: ['mediawiki.widgets.UserInputWidget'],
+		selector: 'input.userInput',
+		getWidget: function(input) {
+			return new mw.widgets.UserInputWidget(Twinkle.OOUIify.getConfig(input));
+		}
+	}
+];
+
+
 }(window, document, jQuery)); // End wrap with anonymous function
 
 // </nowiki>
