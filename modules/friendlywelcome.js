@@ -146,6 +146,7 @@ Twinkle.welcome.callback = function friendlywelcomeCallback(uid) {
 	form.append({
 		type: 'input',
 		name: 'article',
+		className: 'titleInput',
 		label: '* Linked article (if supported by template):',
 		value: mw.util.getParamValue('vanarticle') || '',
 		tooltip: 'An article might be linked from within the welcome if the template supports it. Leave empty for no article to be linked.  Templates that support a linked article are marked with an asterisk.'
@@ -164,6 +165,8 @@ Twinkle.welcome.callback = function friendlywelcomeCallback(uid) {
 	var result = form.render();
 	Window.setContent(result);
 	Window.display();
+
+	Twinkle.OOUIify(result);
 
 	// initialize the welcome list
 	var evt = document.createEvent('Event');
