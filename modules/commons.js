@@ -29,6 +29,59 @@ Twinkle.syncMultiselectWithOOUITags = function syncMultiselectWithOOUITags($sele
 
 // This can run only when OOUI is loaded
 Twinkle.oouiLoaded.then(function() {
+
+	var ComboboxWithGroupsWidget = new OO.ui.ComboBoxInputWidget();
+	ComboboxWithGroupsWidget.getInput().on('change', function (searchTerm) {
+		var items = [];
+		var regex = new RegExp(mw.util.escapeRegExp(searchTerm), 'i');
+		function highlightSearchMatch (match) {
+			var idx = match.input.toUpperCase().indexOf(match[0].toUpperCase());
+			return $('<span>').append(
+				match.input.slice(0, idx),
+				$('<span>').css('text-decoration', 'underline').text(match.input.slice(idx, idx + match[0].length)),
+				match.input.slice(idx + match[0].length)
+			);
+		}
+		function getMatchesInGroup (groupOptions) {
+			return groupOptions.map(function(opt) {
+				return {
+					match: opt.label.match(regex),
+					data: opt.data
+				};
+			}).filter(function(e) {
+				return e.match;
+			});
+		}
+		function addMatchesToItems(matches) {
+			items = items.concat(matches.map(function(e) {
+				return new OO.ui.MenuOptionWidget({ data: e.data, label: highlightSearchMatch(e.match) });
+			}));
+		}
+		this.options.forEach(function(group) {
+			var match, matches;
+			if (match = group.label.match(regex)) { // eslint-disable-line no-cond-assign
+				items.push(new OO.ui.MenuSectionOptionWidget({ label: highlightSearchMatch(match) }));
+				if (this.showFullGroupOnGroupLabelMatch) {
+					items = items.concat(group.options.map(function(opt) {
+						return new OO.ui.MenuOptionWidget({ data: opt.data, label: opt.label });
+					}));
+				} else {
+					// show matching options in the group only
+					matches = getMatchesInGroup(group.options);
+					addMatchesToItems(matches);
+				}
+			} else {
+				matches = getMatchesInGroup(group.options);
+				if (matches.length) {
+					items.push(new OO.ui.MenuSectionOptionWidget({ label: group.label }));
+					addMatchesToItems(matches);
+				}
+			}
+		});
+		this.getMenu().clearItems()
+			.addItems(items);
+	}.bind(ComboboxWithGroupsWidget));
+
 	var SelectWithOptgroupsWidget = function(config) {
 		OO.ui.TextInputWidget.call(this, config);
 		OO.ui.mixin.LookupElement.call(this, {
@@ -90,7 +143,7 @@ Twinkle.oouiLoaded.then(function() {
 		this.options.forEach(function(group) {
 			var match, matches;
 			if (match = group.label.match(regex)) { // eslint-disable-line no-cond-assign
-				items.push(new OO.ui.MenuOptionWidget({ label: highlightSearchMatch(match), disabled: true }));
+				items.push(new OO.ui.MenuSectionOptionWidget({ label: highlightSearchMatch(match) }));
 				if (this.showFullGroupOnGroupLabelMatch) {
 					items = items.concat(group.options.map(function(opt) {
 						return new OO.ui.MenuOptionWidget({ data: opt.data, label: opt.label });
@@ -103,11 +156,13 @@ Twinkle.oouiLoaded.then(function() {
 			} else {
 				matches = getMatchesInGroup(group.options);
 				if (matches.length) {
-					items.push(new OO.ui.MenuOptionWidget({ label: group.label, disabled: true }));
+					items.push(new OO.ui.MenuSectionOptionWidget({ label: group.label }));
 					addMatchesToItems(matches);
 				}
 			}
 		});
 		return items;
 	};
+
+
 });
