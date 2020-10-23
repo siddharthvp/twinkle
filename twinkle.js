@@ -522,6 +522,68 @@ Twinkle.makeFindSourcesDiv = function makeSourcesDiv() {
 		)[0];
 };
 
+var $overlay = $('<div>').attr('id', 'twinkle-ooui-overlay').css({
+	'position': 'absolute',
+	'z-index': 1500
+}).appendTo('body');
+
+var getConfig = function(input, customParams) {
+	return $.extend({
+		name: $(input).attr('name'),
+		disabled: $(input).attr('disabled'),
+		value: $(input).val(),
+		$overlay: $overlay,
+		namespace: input.dataset.namespace ? Number(input.dataset.namespace) : undefined,
+		relative: false
+	}, customParams);
+};
+
+mw.hook('render').add(function(rendered) {
+	var rules = [
+		{
+			dependencies: ['mediawiki.widgets'],
+			selector: 'input.titleInput',
+			getWidget: function(input) {
+				return new mw.widgets.TitleInputWidget(getConfig(input));
+			}
+		},
+		{
+			dependencies: ['mediawiki.widgets.UserInputWidget'],
+			selector: 'input.userInput',
+			getWidget: function(input) {
+				return new mw.widgets.UserInputWidget(getConfig(input));
+			}
+		}
+	];
+	rules.forEach(function(rule) {
+		$(rendered).find(rule.selector).each(function() {
+			mw.loader.using(rule.dependencies, function() {
+				var widget = rule.getWidget(this);
+				var $div = $(Morebits.quickForm.getElementContainer(this));
+				if ($div.hasClass('oo-ui-widget')) {
+					// already OOUI, get the actual container
+					$div = $div.closest('table');
+				}
+				var $label = $div.find('label');
+				var $tooltip = $div.find('.morebits-tooltipButton');
+
+				// OOUI widgets are always <div>, to get a div to display
+				// in the same line as the label, we have to use a table
+				$div.replaceWith(
+					$('<table>').append(
+						$('<tbody>').append(
+							$('<tr>').append(
+								$('<td>').append($label, $tooltip),
+								$('<td>').append(widget.$element)
+							)
+						)
+					)
+				);
+			}.bind(this));
+		});
+	});
+});
+
 
 }(window, document, jQuery)); // End wrap with anonymous function
 

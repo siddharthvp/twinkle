@@ -424,14 +424,19 @@ Twinkle.xfd.callback.change_category = function twinklexfdCallbackChangeCategory
 					if (target.value === 'tfm' && !tfdtarget) {
 						tfdtarget = new Morebits.quickForm.element({
 							name: 'tfdtarget',
+							className: 'titleInput',
 							type: 'input',
 							label: 'Other ' + templateOrModule + ' to be merged: ',
+							data: {
+								namespace: templateOrModule === 'template' ? 10 : 828
+							},
 							tooltip: 'Required. Should not include the ' + Morebits.string.toUpperCaseFirstChar(templateOrModule) + ': namespace prefix.',
 							required: true
 						});
 						target.parentNode.appendChild(tfdtarget.render());
+						mw.hook('render').fire(target.form);
 					} else {
-						$(Morebits.quickForm.getElementContainer(tfdtarget)).remove();
+						$(tfdtarget).closest('table').remove();
 						tfdtarget = null;
 					}
 				},
@@ -531,43 +536,6 @@ Twinkle.xfd.callback.change_category = function twinklexfdCallbackChangeCategory
 				type: 'select',
 				label: 'Choose type of action wanted: ',
 				name: 'xfdcat',
-				event: function(e) {
-					var value = e.target.value,
-						cfdtarget = e.target.form.cfdtarget,
-						cfdtarget2 = e.target.form.cfdtarget2;
-
-					// update enabled status
-					cfdtarget.disabled = value === 'cfd' || value === 'sfd-t';
-
-					if (isCategory) {
-						// update label
-						if (value === 'cfs') {
-							Morebits.quickForm.setElementLabel(cfdtarget, 'Target categories: ');
-						} else if (value === 'cfc') {
-							Morebits.quickForm.setElementLabel(cfdtarget, 'Target article: ');
-						} else {
-							Morebits.quickForm.setElementLabel(cfdtarget, 'Target category: ');
-						}
-						// add/remove extra input box
-						if (value === 'cfs') {
-							if (cfdtarget2) {
-								cfdtarget2.disabled = false;
-								$(cfdtarget2).show();
-							} else {
-								cfdtarget2 = document.createElement('input');
-								cfdtarget2.setAttribute('name', 'cfdtarget2');
-								cfdtarget2.setAttribute('type', 'text');
-								cfdtarget2.setAttribute('required', 'true');
-								cfdtarget.parentNode.appendChild(cfdtarget2);
-							}
-						} else {
-							$(cfdtarget2).prop('disabled', true);
-							$(cfdtarget2).hide();
-						}
-					} else { // Update stub template label
-						Morebits.quickForm.setElementLabel(cfdtarget, 'Target stub template: ');
-					}
-				},
 				list: isCategory ? [
 					{ type: 'option', label: 'Deletion', value: 'cfd', selected: true },
 					{ type: 'option', label: 'Merge', value: 'cfm' },
@@ -577,16 +545,55 @@ Twinkle.xfd.callback.change_category = function twinklexfdCallbackChangeCategory
 				] : [
 					{ type: 'option', label: 'Stub Deletion', value: 'sfd-t', selected: true },
 					{ type: 'option', label: 'Stub Renaming', value: 'sfr-t' }
-				]
+				],
+				event: function(e) {
+					var value = e.target.value;
+
+					$('#cd').empty();
+
+					if (value === 'cfd' || value === 'sfd-t') {
+						return;
+					}
+
+					var input = new Morebits.quickForm.element({
+						type: 'input',
+						name: 'cfdtarget',
+						label: (function() {
+							if (isCategory) {
+								if (value === 'cfs') {
+									return 'Target categories: ';
+								} else if (value === 'cfc') {
+									return 'Target article: ';
+								}
+								return 'Target category: ';
+							}
+							return 'Target stub template: ';
+						})(),
+						className: value === 'cfm' ? 'titleInput' : '',
+						data: {
+							namespace: 14
+						},
+						required: true,
+						value: ''
+					}).render();
+
+					$('#cd').append(input);
+
+					if (value === 'cfs') {
+						var cfdtarget2 = document.createElement('input');
+						cfdtarget2.setAttribute('name', 'cfdtarget2');
+						cfdtarget2.setAttribute('type', 'text');
+						cfdtarget2.setAttribute('required', 'true');
+						$('[name=cfdtarget]').after(cfdtarget2);
+					}
+
+					mw.hook('render').fire($('#cd'));
+				}
 			});
 
 			work_area.append({
-				type: 'input',
-				name: 'cfdtarget',
-				label: 'Target category: ', // default, changed above
-				disabled: true,
-				required: true, // only when enabled
-				value: ''
+				type: 'div',
+				id: 'cd'
 			});
 			appendReasonBox();
 			work_area = work_area.render();

@@ -98,11 +98,8 @@ Twinkle.warn.callback = function twinklewarnCallback() {
 	main_select.append({ type: 'select', name: 'sub_group', event: Twinkle.warn.callback.change_subcategory }); // Will be empty to begin with.
 
 	form.append({
-		type: 'input',
-		name: 'article',
-		label: 'Linked page',
-		value: mw.util.getParamValue('vanarticle') || '',
-		tooltip: 'A page can be linked within the notice, perhaps because it was a revert to said page that dispatched this notice. Leave empty for no page to be linked.'
+		type: 'div',
+		id: 'twinkle-warn-input'
 	});
 
 	form.append({
@@ -1137,9 +1134,6 @@ Twinkle.warn.messages = {
 	}
 };
 
-// Used repeatedly below across menu rebuilds
-Twinkle.warn.prev_article = null;
-Twinkle.warn.prev_reason = null;
 Twinkle.warn.talkpageObj = null;
 
 Twinkle.warn.callback.change_category = function twinklewarnCallbackChangeCategory(e) {
@@ -1318,10 +1312,7 @@ Twinkle.warn.callback.change_category = function twinklewarnCallbackChangeCatego
 
 
 Twinkle.warn.callback.postCategoryCleanup = function twinklewarnCallbackPostCategoryCleanup(e) {
-	// clear overridden label on article textbox
-	Morebits.quickForm.setElementTooltipVisibility(e.target.root.article, true);
-	Morebits.quickForm.resetElementLabel(e.target.root.article);
-	// Trigger custom label/change on main category change
+	// Create the "Linked article" or other input field
 	Twinkle.warn.callback.change_subcategory(e);
 
 	// Use select2 to make the select menu searchable
@@ -1355,40 +1346,46 @@ Twinkle.warn.callback.postCategoryCleanup = function twinklewarnCallbackPostCate
 };
 
 Twinkle.warn.callback.change_subcategory = function twinklewarnCallbackChangeSubcategory(e) {
-	var main_group = e.target.form.main_group.value;
 	var value = e.target.form.sub_group.value;
 
 	// Tags that don't take a linked article, but something else (often a username).
 	// The value of each tag is the label next to the input field
-	var notLinkedArticle = {
-		'uw-agf-sock': 'Optional username of other account (without User:) ',
-		'uw-bite': "Username of 'bitten' user (without User:) ",
-		'uw-socksuspect': 'Username of sock master, if known (without User:) ',
-		'uw-username': 'Username violates policy because... ',
-		'uw-aiv': 'Optional username that was reported (without User:) '
+	var subgroupConfig = {
+		'uw-agf-sock': {
+			label: 'Optional username of other account (without User:) ',
+			className: 'userInput'
+		},
+		'uw-bite': {
+			label: "Username of 'bitten' user (without User:) ",
+			className: 'userInput'
+		},
+		'uw-socksuspect': {
+			label: 'Username of sock master, if known (without User:) ',
+			className: 'userInput'
+		},
+		'uw-username': {
+			label: 'Username violates policy because... '
+		},
+		'uw-aiv': {
+			label: 'Optional username that was reported (without User:) ',
+			className: 'userInput'
+		}
+	};
+	var defaultSubgroup = {
+		label: 'Linked page',
+		value: mw.util.getParamValue('vanarticle') || '',
+		tooltip: 'A page can be linked within the notice, perhaps because it was a revert to said page that dispatched this notice. Leave empty for no page to be linked.',
+		className: 'titleInput'
 	};
 
-	if (['singlenotice', 'singlewarn', 'singlecombined', 'kitchensink'].indexOf(main_group) !== -1) {
-		if (notLinkedArticle[value]) {
-			if (Twinkle.warn.prev_article === null) {
-				Twinkle.warn.prev_article = e.target.form.article.value;
-			}
-			e.target.form.article.notArticle = true;
-			e.target.form.article.value = '';
+	$('#twinkle-warn-input').empty().append(
+		new Morebits.quickForm.element($.extend(subgroupConfig[value] || defaultSubgroup, {
+			type: 'input',
+			name: 'article'
+		})).render()
+	);
 
-			// change form labels according to the warning selected
-			Morebits.quickForm.setElementTooltipVisibility(e.target.form.article, false);
-			Morebits.quickForm.overrideElementLabel(e.target.form.article, notLinkedArticle[value]);
-		} else if (e.target.form.article.notArticle) {
-			if (Twinkle.warn.prev_article !== null) {
-				e.target.form.article.value = Twinkle.warn.prev_article;
-				Twinkle.warn.prev_article = null;
-			}
-			e.target.form.article.notArticle = false;
-			Morebits.quickForm.setElementTooltipVisibility(e.target.form.article, true);
-			Morebits.quickForm.resetElementLabel(e.target.form.article);
-		}
-	}
+	mw.hook('render').fire(e.target.form);
 
 	// add big red notice, warning users about how to use {{uw-[coi-]username}} appropriately
 	$('#tw-warn-red-notice').remove();

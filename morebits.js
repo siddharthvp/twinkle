@@ -516,6 +516,7 @@ Morebits.quickForm.element.prototype.compute = function QuickFormElementCompute(
 				type: '_dyninput_element',
 				label: data.sublabel || data.label,
 				name: data.name,
+				className: data.className,
 				value: data.value,
 				size: data.size,
 				remove: false,
@@ -550,6 +551,7 @@ Morebits.quickForm.element.prototype.compute = function QuickFormElementCompute(
 				subnode.setAttribute('value', data.value);
 			}
 			subnode.setAttribute('name', data.name);
+			subnode.setAttribute('class', data.className);
 			subnode.setAttribute('type', 'text');
 			if (data.size) {
 				subnode.setAttribute('size', data.size);
@@ -689,6 +691,11 @@ Morebits.quickForm.element.prototype.compute = function QuickFormElementCompute(
 	}
 	if (data.style) {
 		childContainder.setAttribute('style', data.style);
+	}
+	if (data.data) {
+		$.each(data.data, function(key, val) {
+			childContainder.dataset[key] = val;
+		});
 	}
 	if (data.className) {
 		childContainder.className = childContainder.className ?
