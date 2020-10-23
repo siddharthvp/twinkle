@@ -346,6 +346,10 @@ Twinkle.speedy.callback.modeChanged = function twinklespeedyCallbackModeChanged(
 	var old_area = Morebits.quickForm.getElements(form, 'work_area')[0];
 	form.replaceChild(work_area.render(), old_area);
 
+	$(form).find('[name=csd]').on('change', function() {
+		Twinkle.OOUIify(form);
+	});
+
 	// if sysop, check if CSD is already on the page and fill in custom rationale
 	if (mode.isSysop && Twinkle.speedy.hasCSD) {
 		var customOption = $('input[name=csd][value=reason]')[0];
@@ -871,6 +875,10 @@ Twinkle.speedy.generalList = [
 		tooltip: 'A copy, by any title, of a page that was deleted via an XfD process or Deletion review, provided that the copy is substantially identical to the deleted version. This clause does not apply to content that has been "userfied", to content undeleted as a result of Deletion review, or if the prior deletions were proposed or speedy deletions, although in this last case, other speedy deletion criteria may still apply',
 		subgroup: {
 			name: 'repost_xfd',
+			className: 'titleInput',
+			data: {
+				namespace: 4
+			},
 			type: 'input',
 			label: 'Page where the deletion discussion took place: ',
 			tooltip: 'Must start with "Wikipedia:"',
@@ -883,6 +891,7 @@ Twinkle.speedy.generalList = [
 		tooltip: 'Pages created by banned or blocked users in violation of their ban or block, and which have no substantial edits by others',
 		subgroup: {
 			name: 'banned_user',
+			className: 'userInput',
 			type: 'input',
 			label: 'Username of banned user (if available): ',
 			tooltip: 'Should not start with "User:"'
@@ -895,6 +904,7 @@ Twinkle.speedy.generalList = [
 		subgroup: [
 			{
 				name: 'move_page',
+				className: 'titleInput',
 				type: 'input',
 				label: 'Page to be moved here: '
 			},
@@ -913,6 +923,10 @@ Twinkle.speedy.generalList = [
 		tooltip: 'A deletion discussion (at AfD, FfD, RfD, TfD, CfD, or MfD) was closed as "delete", but the page wasn\'t actually deleted.',
 		subgroup: {
 			name: 'xfd_fullvotepage',
+			className: 'titleInput',
+			data: {
+				namespace: 4
+			},
 			type: 'input',
 			label: 'Page where the deletion discussion was held: ',
 			tooltip: 'Must start with "Wikipedia:"',
@@ -926,6 +940,7 @@ Twinkle.speedy.generalList = [
 		tooltip: 'This only applies for a copy-and-paste page move of another page that needs to be temporarily deleted to make room for a clean page move.',
 		subgroup: {
 			name: 'copypaste_sourcepage',
+			className: 'titleInput',
 			type: 'input',
 			label: 'Original page that was copy-pasted here: '
 		},
