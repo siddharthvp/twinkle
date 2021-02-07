@@ -1,0 +1,22 @@
+name: Morebits integration tests
+
+on:
+  push:
+    paths:
+      - 'morebits.js'
+      - 'tests/**'
+  pull_request:
+    paths:
+      - 'morebits.js'
+      - 'tests/**'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - run: npm ci
+      - run: cd tests/integration/docker && bash main.sh
+      - run: npm run test:integration

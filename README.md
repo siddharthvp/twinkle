@@ -20,7 +20,7 @@ If you'd like to start contributing, awesome!  Check out [CONTRIBUTING.md](CONTR
 * `modules`: Contains the individual Twinkle modules. Descriptions for these can be found in header comments or in the [Twinkle documentation][]. The module `twinkleconfig.js` powers the [Twinkle preferences panel][WP:TWPREFS].
 
 
-[select2][] is added under the [MIT license][select2license].  The MediaWiki code used [for tests](./tests/mocking/mw_shim.js) is added under the [GPL2 license][mwlicense].
+[select2][] is added under the [MIT license][select2license].  The MediaWiki code used [for tests](./tests/unit/mocking/mw_shim.js) is added under the [GPL2 license][mwlicense].
 
 [Wikipedia:Twinkle]: https://en.wikipedia.org/wiki/Wikipedia:Twinkle
 [AzaToth]: https://en.wikipedia.org/wiki/User:AzaToth
