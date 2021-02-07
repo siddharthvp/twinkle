@@ -9,6 +9,7 @@ on:
     paths:
       - 'morebits.js'
       - 'tests/**'
+  workflow_dispatch:
 
 jobs:
   test:
@@ -17,6 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: npm ci
+      - run: npm install
       - run: cd tests/integration/docker && bash main.sh
       - run: npm run test:integration
