@@ -2,13 +2,7 @@ name: Morebits integration tests
 
 on:
   push:
-    paths:
-      - 'morebits.js'
-      - 'tests/**'
   pull_request:
-    paths:
-      - 'morebits.js'
-      - 'tests/**'
   workflow_dispatch:
 
 jobs:
