@@ -13,7 +13,7 @@ const {mwn: Mwn} = require('mwn');
 describe('Morebits.wiki.api and Morebits.wiki.page', () => {
 	jest.setTimeout(10000);
 
-	let mwn;
+	let mwn, mwn2;
 	let notCalled = () => expect(true).toBe(false);
 	let sleep = (sec) => new Promise(rs => setTimeout(rs, sec * 1000));
 
@@ -47,12 +47,15 @@ describe('Morebits.wiki.api and Morebits.wiki.page', () => {
 		await page.exposeFunction('notCalled', notCalled);
 		await page.exposeFunction('sleep', sleep);
 
-		// Log in the external API client to observe changes
-		mwn = new Mwn({
+		// External API clients to make and observe changes
+		let mwnConfig = {
 			apiUrl: 'http://localhost:8080/api.php',
-			username: 'Wikiuser@bp',
 			password: '12345678901234567890123456789012' // BotPassword configured in setup.sh
-		});
+		}
+		mwn = new Mwn({ ...mwnConfig, username: 'Wikiuser@bp' });
+		mwn2 = new Mwn({ ...mwnConfig, username: 'Wikiuser2@bp' });
+
+		// the 2nd account needs to sign in only if required
 		await mwn.loginGetToken();
 	});
 
@@ -113,7 +116,6 @@ describe('Morebits.wiki.api and Morebits.wiki.page', () => {
 	});
 
 	describe('Morebits.wiki.page', () => {
-
 		test('load', async () => {
 			let pagetext = await page.evaluate(() => {
 				var d = $.Deferred();
@@ -177,6 +179,40 @@ describe('Morebits.wiki.api and Morebits.wiki.page', () => {
 				return d;
 			}, randomPage);
 			expect((await mwn.read(randomPage)).missing).toBe(true);
+		});
+
+		test('looks up page creator', async () => {
+			let [creator, creationTS] = await page.evaluate(() => {
+				var d = $.Deferred();
+				var p = new Morebits.wiki.page('Main Page');
+				p.lookupCreation(function() {
+					d.resolve([p.getCreator(), p.getCreationTimestamp()]);
+				});
+				return d;
+			});
+			expect(creator).toBe('MediaWiki default');
+			expect(new Date(creationTS).getDate()).not.toBeNaN();
+		});
+
+		test('lookupCreator when original creation is a redirect', async () => {
+			let pageName = 'Lookup creator test/' + Math.random();
+			await Promise.all([ // parallelize for speed
+				mwn.create(pageName, '#REDIRECT [[Main Page]]'),
+				mwn2.loginGetToken()
+			]);
+			// Make an edit using the 2nd account, grab the timestamp
+			let editTime = await mwn2.save(pageName, 'Non-redirect content').then(data => data.newtimestamp);
+			let [creator, creationTS] = await page.evaluate((pageName) => {
+				var d = $.Deferred();
+				var p = new Morebits.wiki.page(pageName);
+				p.setLookupNonRedirectCreator(true);
+				p.lookupCreation(function() {
+					d.resolve([p.getCreator(), p.getCreationTimestamp()]);
+				});
+				return d;
+			}, pageName);
+			expect(creator).toBe('Wikiuser2');
+			expect(creationTS).toBe(editTime);
 		});
 	});
 
