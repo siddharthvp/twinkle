@@ -2,6 +2,8 @@ FROM mediawiki
 
 WORKDIR /var/www/html
 
+# TODO: import PGP keys with the full fingerprint to check signatures and/or embed checksums
+
 # Install composer
 RUN php -r "readfile('https://getcomposer.org/installer');" | php && \
     mv composer.phar /usr/local/bin/composer

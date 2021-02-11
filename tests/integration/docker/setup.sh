@@ -17,6 +17,7 @@ php maintenance/install.php Wikipedia wikiuser --pass=wikipassword \
 # Chuck the auto-generated LocalSettings.php and bring back ours
 rm -rf ./LocalSettings.php && mv /tmp/LocalSettings.php ./LocalSettings.php
 
+# Run update.php so that database tables needed for extensions are created
 php maintenance/update.php --quick
 
 # Include every grant in bot password, too bad there isn't an --all-grants option

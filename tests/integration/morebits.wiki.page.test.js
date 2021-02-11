@@ -21,9 +21,10 @@ describe('Morebits.wiki.api and Morebits.wiki.page', () => {
 
 		// Log in. This is the only place where scraping should be necessary.
 		await page.goto('http://localhost:8080/index.php?title=Special:UserLogin');
-		const frame = page.mainFrame();
-		await frame.type('#wpName1', 'Wikiuser');
-		await frame.type('#wpPassword1', 'wikipassword');
+		await expect(page).toFillForm('form[name=userlogin]', {
+			'wpName': 'Wikiuser',
+			'wpPassword': 'wikipassword'
+		});
 		await Promise.all([
 			page.waitForNavigation(), // The promise resolves after navigation has finished
 			page.click('#wpLoginAttempt'), // Clicking the link will cause a navigation
