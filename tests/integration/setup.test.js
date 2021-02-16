@@ -28,8 +28,12 @@
 
 // This file is only for debugging purposes.
 
+const {setupBrowser} = require('./test_base');
+
 describe('Test correct environment setup', () => {
 	jest.setTimeout(10000);
+
+	beforeAll(() => setupBrowser(page));
 
 	test('page should be titled "Wikipedia"', async () => {
 		await expect(page.title()).resolves.toMatch('Wikipedia');

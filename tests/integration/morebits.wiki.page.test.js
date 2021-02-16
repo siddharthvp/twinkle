@@ -1,4 +1,15 @@
+const {mwn, mwn2, setupBrowser, setupMwn} = require('./test_base');
+
 describe('Morebits.wiki.page', () => {
+	jest.setTimeout(20000);
+
+	beforeAll(() => {
+		return Promise.all([
+			setupBrowser(page),
+			setupMwn()
+		]);
+	});
+
 	test('load', async () => {
 		let pagetext = await page.evaluate(() => {
 			var d = $.Deferred();
@@ -11,6 +22,7 @@ describe('Morebits.wiki.page', () => {
 		expect(typeof pagetext).toBe('string');
 		expect(pagetext.length).toBeGreaterThan(500);
 	});
+
 	// test('fails to load a page with bad name', async () => {
 	// 	// try{
 	// 		let result = await page.evaluate(() => {
@@ -24,6 +36,7 @@ describe('Morebits.wiki.page', () => {
 	// 	// 	console.log(err);
 	// 	// }
 	// });
+
 	test('prepend', async () => {
 		let randomPage = 'Prepend test page/' + Math.random();
 		await mwn.create(randomPage, 'Test page.');
@@ -38,6 +51,7 @@ describe('Morebits.wiki.page', () => {
 		let pagetext = (await mwn.read(randomPage)).revisions[0].content;
 		expect(pagetext).toBe('Prepended text. Test page.');
 	});
+
 	test('append', async () => {
 		let randomPage = 'Append test page/' + Math.random();
 		await page.evaluate((randomPage) => {
@@ -51,6 +65,7 @@ describe('Morebits.wiki.page', () => {
 		let pagetext = (await mwn.read(randomPage)).revisions[0].content;
 		expect(pagetext).toBe('Testing 123');
 	});
+
 	test('deletePage', async () => {
 		let randomPage = 'Delete test page/' + Math.random();
 		await mwn.create(randomPage, 'Test page'); // create the page first to delete it
