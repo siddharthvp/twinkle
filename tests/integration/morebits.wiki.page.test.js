@@ -1,14 +1,15 @@
-const {mwn, mwn2, setupBrowser, setupMwn} = require('./test_base');
+const {mwn, mwn2, setupBrowser, setupMwn, page, teardown} = require('./test_base');
 
 describe('Morebits.wiki.page', () => {
 	jest.setTimeout(20000);
 
 	beforeAll(() => {
 		return Promise.all([
-			setupBrowser(page),
+			setupBrowser(),
 			setupMwn()
 		]);
 	});
+	afterAll(() => teardown());
 
 	test('load', async () => {
 		let pagetext = await page.evaluate(() => {
