@@ -2,14 +2,14 @@
 
 module.exports = {
 	preset: 'jest-playwright-preset',
+	testEnvironment: './tests/integration/jest-environment.js',
 	testEnvironmentOptions: {
 		'jest-playwright': {
 			launchOptions: {
 				// switch this to false for debugging
 				headless: true
 			},
-			// for debugging, you really just want one browser
-			browsers: ['chromium', 'firefox', 'webkit']
+			browsers: ['chromium', /*'firefox', 'webkit'*/]
 		}
 	}
 }
