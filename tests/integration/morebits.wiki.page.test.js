@@ -1,7 +1,7 @@
 const fs = require('fs');
 const {mwn: Mwn} = require('mwn');
 
-/* globals jest, describe, test, beforeAll, jestPuppeteer, page, browser, context */
+/* globals jest, describe, test, beforeAll, jestPlaywright, page, browser, context, browserName, deviceName */
 
 /**
  * Code inside page.evaluate(() => {...}) block is executed inside the headless browser.
@@ -21,13 +21,11 @@ describe('Morebits.wiki.api and Morebits.wiki.page', () => {
 
 		// Log in. This is the only place where scraping should be necessary.
 		await page.goto('http://localhost:8080/index.php?title=Special:UserLogin');
-		await expect(page).toFillForm('form[name=userlogin]', {
-			'wpName': 'Wikiuser',
-			'wpPassword': 'wikipassword'
-		});
+		await page.fill('#wpName1', 'Wikiuser');
+		await page.fill('#wpPassword1', 'wikipassword');
 		await Promise.all([
-			page.waitForNavigation(), // The promise resolves after navigation has finished
 			page.click('#wpLoginAttempt'), // Clicking the link will cause a navigation
+			page.waitForNavigation(), // The promise resolves after navigation has finished
 		]);
 
 		// Load morebits code in browser context
@@ -57,7 +55,7 @@ describe('Morebits.wiki.api and Morebits.wiki.page', () => {
 		mwn2 = new Mwn({ ...mwnConfig, username: 'Wikiuser2@bp' });
 
 		// the 2nd account needs to sign in only if required
-		await mwn.loginGetToken();
+		await mwn.login();
 	});
 
 	describe('test environment set up correctly', () => {
@@ -199,7 +197,7 @@ describe('Morebits.wiki.api and Morebits.wiki.page', () => {
 			let pageName = 'Lookup creator test/' + Math.random();
 			await Promise.all([ // parallelize for speed
 				mwn.create(pageName, '#REDIRECT [[Main Page]]'),
-				mwn2.loginGetToken()
+				mwn2.login()
 			]);
 			// Make an edit using the 2nd account, grab the timestamp
 			let editTime = await mwn2.save(pageName, 'Non-redirect content').then(data => data.newtimestamp);
