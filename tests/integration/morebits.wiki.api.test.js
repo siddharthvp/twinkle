@@ -1,9 +1,8 @@
-const {setupBrowser, page, teardown} = require('./test_base');
+const {setupBrowser} = require('./test_base');
 
 describe('Morebits.wiki.api', () => {
 
-	beforeAll(() => setupBrowser());
-	afterAll(() => teardown());
+	beforeAll(() => setupBrowser(page));
 
 	test('Api call works (formatversion 2 by default)', async () => {
 		let result = await page.evaluate(() => {

@@ -1,6 +1,5 @@
 const fs = require('fs');
 const {mwn: Mwn} = require('mwn');
-const playwright = require('playwright');
 
 // External API clients to make and observe changes
 let mwnConfig = {
@@ -19,20 +18,7 @@ function setupMwn() {
 	}
 }
 
-let page, browser, context;
-
-async function setupBrowser() {
-	if (page) { // page is already setup
-		return;
-	}
-	const env = await jestPlaywright.configSeparateEnv(
-		require(__dirname + '/../../jest.config.js').testEnvironmentOptions['jest-playwright']
-	);
-	page = env.page;
-	browser = env.browser
-	context = env.context;
-	// browser = await playwright[browserName].launch(jestPlaywright.configSeparateEnv());
-	// page = await browser.newPage();
+async function setupBrowser(page) {
 	await page.goto('http://localhost:8080/index.php?title=Special:UserLogin');
 	await page.fill('#wpName1', 'Wikiuser');
 	await page.fill('#wpPassword1', 'wikipassword');
@@ -54,9 +40,4 @@ async function setupBrowser() {
 // Load morebits code in the node context too, along with jsdom and jquery
 require(__dirname + '/../unit/mocking/mb_repl');
 
-async function teardown() {
-	// await page.close();
-	// await browser.close();
-}
-
-module.exports = { page, browser, context, mwn, mwn2, setupMwn, setupBrowser, teardown };
+module.exports = { mwn, mwn2, setupMwn, setupBrowser };

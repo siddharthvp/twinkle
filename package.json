@@ -10,7 +10,7 @@
 		"server": "node scripts/server.js",
 		"sync": "perl scripts/sync.pl",
 		"test:unit": "qunit --require ./tests/unit/mocking/mb_repl.js ./tests/unit/*",
-		"test:integration": "jest tests/integration --runInBand",
+		"test:integration": "jest tests/integration",
 		"test:integration:setup": "cd tests/integration/docker && bash main.sh",
 		"test:integration:teardown": "cd tests/integration/docker && docker-compose down",
 		"test": "npm run test:unit && npm run test:integration",

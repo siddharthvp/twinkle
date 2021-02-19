@@ -28,31 +28,30 @@
 
 // This file is only for debugging purposes.
 
-// const {setupBrowser, page, teardown} = require('./test_base');
-//
-// describe('Test correct environment setup', () => {
-// 	jest.setTimeout(10000);
-//
-// 	beforeAll(() => setupBrowser());
-// 	afterAll(() => teardown());
-//
-// 	test('page should be titled "Wikipedia"', async () => {
-// 		await expect(page.title()).resolves.toMatch('Wikipedia');
-// 	});
-//
-// 	test('we are logged in', async () => {
-// 		let wgUser = await page.evaluate(() => {
-// 			return mw.config.get('wgUserName');
-// 		});
-// 		expect(wgUser).toBe('Wikiuser');
-// 	});
-//
-// 	test('Morebits is usable', async () => {
-// 		let isSysop = await page.evaluate(() => {
-// 			return Morebits.userIsSysop;
-// 		});
-// 		expect(isSysop).toBe(true);
-// 	})
-//
-// });
-//
+const {setupBrowser} = require('./test_base');
+
+describe('Test correct environment setup', () => {
+	jest.setTimeout(10000);
+
+	beforeAll(() => setupBrowser(page));
+
+	test('page should be titled "Wikipedia"', async () => {
+		await expect(page.title()).resolves.toMatch('Wikipedia');
+	});
+
+	test('we are logged in', async () => {
+		let wgUser = await page.evaluate(() => {
+			return mw.config.get('wgUserName');
+		});
+		expect(wgUser).toBe('Wikiuser');
+	});
+
+	test('Morebits is usable', async () => {
+		let isSysop = await page.evaluate(() => {
+			return Morebits.userIsSysop;
+		});
+		expect(isSysop).toBe(true);
+	})
+
+});
+
