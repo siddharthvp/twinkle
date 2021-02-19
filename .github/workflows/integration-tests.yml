@@ -14,7 +14,8 @@ jobs:
         uses: actions/checkout@v2
       - name: Install system dependencies for browsers
         uses: microsoft/playwright-github-action@v1
-      - run: Install npm dependencies
+      - name: Install npm dependencies
+        run: npm install
       - name: Setup MediaWiki instance using Docker
         run: npm run test:integration:setup
       - name: Run integration tests
