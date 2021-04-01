@@ -2736,6 +2736,17 @@ Morebits.wiki.page = function(pageName, status) {
 		}
 
 		// shouldn't happen if canUseMwUserToken === true
+		if (ctx.fullyProtected && !ctx.suppressProtectWarning) {
+			var confirmMsg = ctx.fullyProtected === 'infinity' ?
+				msg('protected-indef-edit-warn', ctx.pageName, 'You are about to make an edit to the fully protected page "' + ctx.pageName + '" (protected indefinitely)') :
+				msg('protected-temp-edit-warn', ctx.pageName, new Morebits.date(ctx.fullyProtected).calendar('utc'), 'You are about to make an edit to the fully protected page "' + ctx.pageName + '" (protection expiring ' + new Morebits.date(ctx.fullyProtected).calendar('utc') + ' (UTC))');
+
+			if (!confirm(confirmMsg)) {
+				ctx.statusElement.error(msg('protected-aborted', 'Edit to fully protected page was aborted.'));
+				ctx.onSaveFailure(this);
+				return;
+			}
+		}
 		if (ctx.fullyProtected && !ctx.suppressProtectWarning &&
 			!confirm(msg('protected-edit-warning', ctx.pageName, new Morebits.date(ctx.fullyProtected).calendar('utc'), 'You are about to make an edit to the fully protected page "' + ctx.pageName +
 			(ctx.fullyProtected === 'infinity' ? '" (protected indefinitely)' : '" (protection expiring ' + new Morebits.date(ctx.fullyProtected).calendar('utc') + ' (UTC))')) +
@@ -3979,7 +3990,7 @@ Morebits.wiki.page = function(pageName, status) {
 		} else if ((errorCode === null || errorCode === undefined) && ctx.retries++ < ctx.maxRetries) {
 
 			// the error might be transient, so try again
-			ctx.statusElement.info(msg('save-failed-retrying', 'Save failed, retrying in 2 seconds ...'));
+			ctx.statusElement.info(msg('save-failed-retrying', 2, 'Save failed, retrying in 2 seconds ...'));
 			--Morebits.wiki.numberOfActionsLeft;  // allow for normal completion if retry succeeds
 
 			// wait for sometime for client to regain connnectivity
