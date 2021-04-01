@@ -5610,7 +5610,7 @@ Morebits.batchOperation = function(currentAction) {
 		var total = ctx.pageList.length;
 		if (ctx.countFinished < total) {
 			var progress = Math.round(100 * ctx.countFinished / total);
-			ctx.statusElement.status(msg('n-percent', progress, progress + '%'));
+			ctx.statusElement.status(msg('percent', progress, progress + '%'));
 
 			// start a new chunk if we're close enough to the end of the previous chunk, and
 			// we haven't already started the next one
