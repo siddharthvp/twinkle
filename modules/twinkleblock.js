@@ -749,7 +749,7 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 		if (Twinkle.block.currentBlockInfo.expiry === 'infinity') {
 			statusStr += ' (indefinite)';
 		} else if (new Morebits.date(Twinkle.block.currentBlockInfo.expiry).isValid()) {
-			statusStr += ' (expires ' + new Morebits.date(Twinkle.block.currentBlockInfo.expiry).calendar('utc') + ')';
+			statusStr += ' (expires ' + new Morebits.date(Twinkle.block.currentBlockInfo.expiry).calendar() + ')';
 		}
 
 
@@ -780,9 +780,9 @@ Twinkle.block.callback.change_action = function twinkleblockCallbackChangeAction
 		if (!Twinkle.block.currentBlockInfo) {
 			var lastBlockAction = Twinkle.block.blockLog[0];
 			if (lastBlockAction.action === 'unblock') {
-				$blockloglink.append(' (unblocked ' + new Morebits.date(lastBlockAction.timestamp).calendar('utc') + ')');
+				$blockloglink.append(' (unblocked ' + new Morebits.date(lastBlockAction.timestamp).calendar() + ')');
 			} else { // block or reblock
-				$blockloglink.append(' (' + lastBlockAction.params.duration + ', expired ' + new Morebits.date(lastBlockAction.params.expiry).calendar('utc') + ')');
+				$blockloglink.append(' (' + lastBlockAction.params.duration + ', expired ' + new Morebits.date(lastBlockAction.params.expiry).calendar() + ')');
 			}
 		}
 

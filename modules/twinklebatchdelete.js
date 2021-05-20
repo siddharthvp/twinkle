@@ -184,7 +184,7 @@ Twinkle.batchdelete.callback = function twinklebatchdeleteCallback() {
 			}).pop();
 			if (editProt) {
 				metadata.push('fully protected' +
-				(editProt.expiry === 'infinity' ? ' indefinitely' : ', expires ' + new Morebits.date(editProt.expiry).calendar('utc') + ' (UTC)'));
+				(editProt.expiry === 'infinity' ? ' indefinitely' : ', expires ' + new Morebits.date(editProt.expiry).calendar()));
 			}
 
 			if (page.ns === 6) {
@@ -348,7 +348,7 @@ Twinkle.batchdelete.callback.toggleSubpages = function twDbatchToggleSubpages(e)
 					}).pop();
 					if (editProt) {
 						metadata.push('fully protected' +
-						(editProt.expiry === 'infinity' ? ' indefinitely' : ', expires ' + new Morebits.date(editProt.expiry).calendar('utc') + ' (UTC)'));
+						(editProt.expiry === 'infinity' ? ' indefinitely' : ', expires ' + new Morebits.date(editProt.expiry).calendar()));
 					}
 					if (page.ns === 6) {
 						metadata.push('uploader: ' + page.imageinfo[0].user);

@@ -2796,7 +2796,7 @@ Morebits.wiki.page = function(pageName, status) {
 					)
 					: msg('protected-edit-warning', ctx.pageName, ctx.fullyProtected,
 						'You are about to make an edit to the fully protected page "' + ctx.pageName +
-					'" (protection expiring ' + new Morebits.date(ctx.fullyProtected).calendar('utc') + ' (UTC)).  \n\nClick OK to proceed with the edit, or Cancel to skip this edit.'
+					'" (protection expiring ' + new Morebits.date(ctx.fullyProtected).calendar() + ').  \n\nClick OK to proceed with the edit, or Cancel to skip this edit.'
 					)
 			)
 		) {
@@ -4232,7 +4232,7 @@ Morebits.wiki.page = function(pageName, status) {
 		}
 		if (editprot && !ctx.suppressProtectWarning &&
 			!confirm('You are about to ' + action + ' the fully protected page "' + ctx.pageName +
-			(editprot.expiry === 'infinity' ? '" (protected indefinitely)' : '" (protection expiring ' + new Morebits.date(editprot.expiry).calendar('utc') + ' (UTC))') +
+			(editprot.expiry === 'infinity' ? '" (protected indefinitely)' : '" (protection expiring ' + new Morebits.date(editprot.expiry).calendar() + ')') +
 			'.  \n\nClick OK to proceed with ' + action + ', or Cancel to skip.')) {
 			ctx.statusElement.error('Aborted ' + action + ' on fully protected page.');
 			onFailure(this);

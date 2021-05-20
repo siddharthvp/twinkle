@@ -80,7 +80,7 @@ Twinkle.batchundelete.callback = function twinklebatchundeleteCallback() {
 			var title = page.title;
 			list.push({
 				label: title + (editProt ? ' (fully create protected' +
-					(editProt.expiry === 'infinity' ? ' indefinitely' : ', expires ' + new Morebits.date(editProt.expiry).calendar('utc') + ' (UTC)') + ')' : ''),
+					(editProt.expiry === 'infinity' ? ' indefinitely' : ', expires ' + new Morebits.date(editProt.expiry).calendar()) + ')' : ''),
 				value: title,
 				checked: true,
 				style: editProt ? 'color:red' : ''

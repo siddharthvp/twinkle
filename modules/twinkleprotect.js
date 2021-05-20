@@ -250,9 +250,9 @@ Twinkle.protect.callback.showLogAndCurrentProtectInfo = function twinkleprotectC
 			if (!currentlyProtected || (!Twinkle.protect.currentProtectionLevels.edit && !Twinkle.protect.currentProtectionLevels.move)) {
 				var lastProtectAction = Twinkle.protect.protectLog[0];
 				if (lastProtectAction.action === 'unprotect') {
-					$linkMarkup.append(' (unprotected ' + new Morebits.date(lastProtectAction.timestamp).calendar('utc') + ')');
+					$linkMarkup.append(' (unprotected ' + new Morebits.date(lastProtectAction.timestamp).calendar() + ')');
 				} else { // protect or modify
-					$linkMarkup.append(' (expired ' + new Morebits.date(lastProtectAction.params.details[0].expiry).calendar('utc') + ')');
+					$linkMarkup.append(' (expired ' + new Morebits.date(lastProtectAction.params.details[0].expiry).calendar() + ')');
 				}
 			}
 			$linkMarkup.append(Twinkle.protect.hasStableLog ? $('<span> &bull; </span>') : null);
@@ -263,9 +263,9 @@ Twinkle.protect.callback.showLogAndCurrentProtectInfo = function twinkleprotectC
 			if (!currentlyProtected || !Twinkle.protect.currentProtectionLevels.stabilize) {
 				var lastStabilizeAction = Twinkle.protect.stableLog[0];
 				if (lastStabilizeAction.action === 'reset') {
-					$linkMarkup.append(' (reset ' + new Morebits.date(lastStabilizeAction.timestamp).calendar('utc') + ')');
+					$linkMarkup.append(' (reset ' + new Morebits.date(lastStabilizeAction.timestamp).calendar() + ')');
 				} else { // config or modify
-					$linkMarkup.append(' (expired ' + new Morebits.date(lastStabilizeAction.params.expiry).calendar('utc') + ')');
+					$linkMarkup.append(' (expired ' + new Morebits.date(lastStabilizeAction.params.expiry).calendar() + ')');
 				}
 			}
 		}
@@ -303,7 +303,7 @@ Twinkle.protect.callback.showLogAndCurrentProtectInfo = function twinkleprotectC
 			if (settings.expiry === 'infinity') {
 				protectionNode.push(' (indefinite) ');
 			} else {
-				protectionNode.push(' (expires ' + new Morebits.date(settings.expiry).calendar('utc') + ') ');
+				protectionNode.push(' (expires ' + new Morebits.date(settings.expiry).calendar() + ') ');
 			}
 			if (settings.admin) {
 				var adminLink = '<a target="_blank" href="' + mw.util.getUrl('User talk:' + settings.admin) + '">' + settings.admin + '</a>';

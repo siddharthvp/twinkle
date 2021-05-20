@@ -210,7 +210,7 @@ Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 			}
 			if (editProt) {
 				metadata.push('fully' + (missing ? ' create' : '') + ' protected' +
-				(editProt.expiry === 'infinity' ? ' indefinitely' : ', expires ' + new Morebits.date(editProt.expiry).calendar('utc') + ' (UTC)'));
+				(editProt.expiry === 'infinity' ? ' indefinitely' : ', expires ' + new Morebits.date(editProt.expiry).calendar()));
 			}
 
 			var title = page.title;
