@@ -2013,18 +2013,26 @@ Morebits.date.prototype = {
 	 * @param {string} formatstr - Format the date into a string, using
 	 * the replacement syntax.  Use `[` and `]` to escape items.  If not
 	 * provided, will return the ISO-8601-formatted string.
-	 * @param {(string|number)} [zone=system] - `system` (for browser-default time zone),
-	 * `utc`, or specify a time zone as number of minutes relative to UTC.
+	 * @param {(string|number)} [zone=user] - `system` (for browser-default time
+	 * zone), `user` (for user preference time zone), `utc`, or specify a time
+	 * zone as number of minutes relative to UTC.
 	 * @returns {string}
 	 */
 	format: function(formatstr, zone) {
 		if (!this.isValid()) {
 			return 'Invalid date'; // Put the truth out, preferable to "NaNNaNNan NaN:NaN" or whatever
 		}
-		var udate = this;
+		zone = zone || 'user';
+		var udate = this; // initialise, used when zone is 'system'
 		// create a new date object that will contain the date to display as system time
 		if (zone === 'utc') {
 			udate = new Morebits.date(this.getTime()).add(this.getTimezoneOffset(), 'minutes');
+		} else if (zone === 'user') {
+			// mw.user.options.get('timecorrection') is the output of the toString() method in
+			// https://gerrit.wikimedia.org/r/plugins/gitiles/mediawiki/core/+/refs/heads/master/includes/user/UserTimeCorrection.php
+			// which can always be parsed like this:
+			var offset = parseInt(mw.user.options.get('timecorrection').split('|')[1]);
+			udate = new Morebits.date(this.getTime()).add(this.getTimezoneOffset() + offset, 'minutes');
 		} else if (typeof zone === 'number') {
 			// convert to utc, then add the utc offset given
 			udate = new Morebits.date(this.getTime()).add(this.getTimezoneOffset() + zone, 'minutes');
@@ -2072,8 +2080,9 @@ Morebits.date.prototype = {
 	 * Gives a readable relative time string such as "Yesterday at 6:43 PM" or "Last Thursday at 11:45 AM".
 	 * Similar to `calendar` in moment.js, but with time zone support.
 	 *
-	 * @param {(string|number)} [zone=system] - 'system' (for browser-default time zone),
-	 * 'utc' (for UTC), or specify a time zone as number of minutes past UTC.
+	 * @param {(string|number)} [zone=user] - 'system' (for browser-default time zone),
+	 * 'utc' (for UTC), 'user' (for time per user's site preference) or specify a time zone as
+	 * number of minutes past UTC.
 	 * @returns {string}
 	 */
 	calendar: function(zone) {

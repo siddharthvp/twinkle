@@ -1,5 +1,5 @@
 QUnit.module('Morebits.date');
-// Allow off-by-one values in milliseconds for not-quite-simultaneous date contructions
+// Allow off-by-one values in milliseconds for not-quite-simultaneous date constructions
 QUnit.assert.pmOne = function(actual, expected, message) {
 	this.pushResult({
 		result: actual === expected || actual === expected+1 || actual === expected-1,
@@ -73,6 +73,20 @@ QUnit.test('Formats', assert => {
 	assert.strictEqual(date.format('MMt[h month], [d]a[y] D, h [o\'clock] A', 'utc'), '11th month, day 7, 4 o\'clock PM', 'Format escapes');
 	assert.strictEqual(date.format('dddd D MMMM YY h:mA', 600), 'Sunday 8 November 20 2:26AM', 'non-UTC formatting');
 	assert.strictEqual(date.format('MMt[h month], [d]a[y] D, h [o\'clock] A', 600), '11th month, day 8, 2 o\'clock AM', 'non-UTC escapes');
+	mw.user = { // TODO: use proper mocking (#1384)
+		options: {
+			get: function(prop) {
+				if (prop === 'timecorrection') {
+					return 'Offset|330';
+				}
+			}
+		}
+	};
+	assert.strictEqual(date.format('HH:mm, D MMMM YYYY', 'user'), '21:56, 7 November 2020');
+	mw.user.options.get = function () { return 'ZoneInfo|330|Asia/Kolkata' };
+	assert.strictEqual(date.format('HH:mm, D MMMM YYYY', 'user'), '21:56, 7 November 2020');
+	mw.user.options.get = function () { return 'System|0' };
+	assert.strictEqual(date.format('HH:mm, D MMMM YYYY', 'user'), '16:26, 7 November 2020');
 });
 QUnit.test('Calendar', assert => {
 	assert.strictEqual(date.calendar('utc'), '2020-11-07', 'Old calendar');
